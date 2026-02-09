@@ -11,22 +11,44 @@ signOut
 let driversCache = [];
 
 // LOGOUT
-document.getElementById("logoutBtn").onclick = () => {
-signOut(auth);
-location.href="./";
-};
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+  logoutBtn.onclick = () => {
+    signOut(auth);
+    location.href = "/";
+  };
+}
 
 // ADD DRIVER
 document.getElementById("addDriver").onclick = async () => {
-await addDoc(collection(db,"drivers"),{
-name:name.value,
-tag:tag.value,
-role:role.value,
-photo:photo.value,
-notes:notes.value,
-stats:{races:0,wins:0,podiums:0,points:0}
-});
-loadDrivers();
+
+  const nameEl = document.getElementById("name");
+  const tagEl = document.getElementById("tag");
+  const roleEl = document.getElementById("role");
+  const photoEl = document.getElementById("photo");
+  const notesEl = document.getElementById("notes");
+
+  if (!nameEl.value) {
+    alert("Driver name is required");
+    return;
+  }
+
+  await addDoc(collection(db,"drivers"), {
+    name: nameEl.value,
+    tag: tagEl.value || "",
+    role: roleEl.value || "",
+    photo: photoEl.value || "",
+    notes: notesEl.value || "",
+    stats: { races: 0, wins: 0, podiums: 0, points: 0 }
+  });
+
+  nameEl.value = "";
+  tagEl.value = "";
+  roleEl.value = "";
+  photoEl.value = "";
+  notesEl.value = "";
+
+  loadDrivers();
 };
 
 // LOAD DRIVERS
@@ -127,4 +149,5 @@ data:{labels:names,datasets:[{label:"Wins",data:wins}]}
 
 loadDrivers();
 loadEvents();
+
 
