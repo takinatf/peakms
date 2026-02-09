@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../logo.png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Login | Peak Motorsports</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-zinc-950 text-white">
+
+  <div class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-md bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
+
+      <div class="flex items-center gap-3 mb-6">
+        <img src="../logo.png" alt="Peak Motorsports" class="w-12 h-12 object-contain">
+        <div>
+          <h1 class="text-2xl font-bold">Admin Login</h1>
+          <p class="text-sm text-zinc-400">Peak Motorsports Control Panel</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-zinc-300">Email</label>
+          <input id="email" type="email"
+            class="w-full mt-1 px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 outline-none focus:border-blue-500"
+            placeholder="admin@peakmotorsports.xyz">
+        </div>
+
+        <div>
+          <label class="text-sm text-zinc-300">Password</label>
+          <input id="password" type="password"
+            class="w-full mt-1 px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 outline-none focus:border-blue-500"
+            placeholder="••••••••••">
+        </div>
+
+        <button id="loginBtn"
+          class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-semibold">
+          Log In
+        </button>
+
+        <button id="signupBtn"
+          class="w-full py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition font-semibold">
+          Create Account
+        </button>
+
+        <p id="msg" class="text-sm text-zinc-400 text-center mt-4"></p>
+      </div>
+
+      <div class="mt-8 text-center text-xs text-zinc-500">
+        © <span id="year"></span> Peak Motorsports
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
+  <script type="module" src="./auth.js"></script>
+</body>
+</html>
