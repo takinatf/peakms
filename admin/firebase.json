@@ -1,108 +1,19 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <link rel="icon" type="image/png" href="../logo.png">
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin Dashboard | Peak Motorsports</title>
+// /admin/firebase.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDhJYnWIxHTgUHFkRzSYcGBKAZ1QkdUz0w",
+  authDomain: "peakdata-ab82e.firebaseapp.com",
+  projectId: "peakdata-ab82e",
+  storageBucket: "peakdata-ab82e.firebasestorage.app",
+  messagingSenderId: "105030148273",
+  appId: "1:105030148273:web:30d8553edb03def7828290",
+  measurementId: "G-0GLJGE89VV"
+};
 
-<body class="min-h-screen bg-zinc-950 text-white">
-
-  <!-- Top Bar -->
-  <header class="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur border-b border-zinc-800">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
-      <div class="flex items-center gap-3">
-        <img src="../logo.png" class="w-10 h-10 object-contain" alt="Logo">
-        <div>
-          <h1 class="text-lg font-bold leading-tight">Admin Dashboard</h1>
-          <p class="text-xs text-zinc-400">Peak Motorsports</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <p id="userEmail" class="text-sm text-zinc-300"></p>
-        <button id="logoutBtn"
-          class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition">
-          Logout
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main -->
-  <main class="max-w-7xl mx-auto px-6 py-10">
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-      <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6">
-        <p class="text-sm text-zinc-400">Total Drivers</p>
-        <h2 id="driverCount" class="text-3xl font-bold mt-2">0</h2>
-      </div>
-
-      <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6">
-        <p class="text-sm text-zinc-400">Total Race Results</p>
-        <h2 id="resultCount" class="text-3xl font-bold mt-2">0</h2>
-      </div>
-
-      <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6">
-        <p class="text-sm text-zinc-400">Reports Stored</p>
-        <h2 id="reportCount" class="text-3xl font-bold mt-2">0</h2>
-      </div>
-
-    </div>
-
-    <!-- Add Driver -->
-    <section class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6 mb-8">
-      <h3 class="text-xl font-bold mb-4">Add Driver</h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input id="driverName" class="px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 outline-none focus:border-blue-500"
-          placeholder="Driver Name (Takina)">
-        <input id="driverTag" class="px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 outline-none focus:border-blue-500"
-          placeholder="Nickname / Tag (Duck)">
-        <input id="driverRole" class="px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 outline-none focus:border-blue-500"
-          placeholder="Role (Driver / Manager)">
-      </div>
-
-      <button id="addDriverBtn"
-        class="mt-4 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-semibold">
-        Save Driver
-      </button>
-
-      <p id="driverMsg" class="text-sm text-zinc-400 mt-3"></p>
-    </section>
-
-    <!-- Drivers Table -->
-    <section class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-bold">Drivers</h3>
-        <button id="refreshBtn"
-          class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition">
-          Refresh
-        </button>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="text-zinc-400 border-b border-zinc-800">
-            <tr>
-              <th class="text-left py-3">Name</th>
-              <th class="text-left py-3">Tag</th>
-              <th class="text-left py-3">Role</th>
-              <th class="text-right py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="driversTable"></tbody>
-        </table>
-      </div>
-    </section>
-
-  </main>
-
-  <script type="module" src="./dashboard.js"></script>
-</body>
-</html>
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
