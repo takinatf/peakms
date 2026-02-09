@@ -1,108 +1,165 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" href="../logo.png">
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin Dashboard | Peak Motorsports</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Peak Admin</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+background:#050507 url("https://www.transparenttextures.com/patterns/carbon-fibre-v2.png");
+}
+
+/* Glass Panel */
+.glass{
+background:rgba(20,20,28,.55);
+backdrop-filter: blur(14px);
+border:1px solid rgba(120,120,255,.15);
+box-shadow:0 10px 35px rgba(0,0,0,.45);
+}
+
+/* Neon Card */
+.stat{
+background:linear-gradient(145deg,#11121a,#0a0a10);
+border:1px solid rgba(70,130,255,.25);
+box-shadow:0 0 20px rgba(50,150,255,.25);
+}
+
+/* Sidebar Glow */
+.navbtn:hover{
+background:rgba(80,120,255,.2);
+box-shadow:0 0 12px rgba(80,120,255,.4);
+}
+</style>
 </head>
 
-<body class="min-h-screen bg-zinc-950 text-white">
+<body class="text-white min-h-screen flex">
 
-  <!-- Top Bar -->
-  <header class="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur border-b border-zinc-800">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+<!-- SIDEBAR -->
+<aside class="w-64 glass flex flex-col p-6 space-y-6">
 
-      <div class="flex items-center gap-3">
-        <img src="../logo.png" class="w-10 h-10 object-contain" alt="Logo">
-        <div>
-          <h1 class="text-lg font-bold leading-tight">Admin Dashboard</h1>
-          <p class="text-xs text-zinc-400">Peak Motorsports</p>
-        </div>
-      </div>
+<h1 class="text-2xl font-bold text-blue-400">PEAK</h1>
 
-      <div class="flex items-center gap-3">
-        <p id="userEmail" class="text-sm text-zinc-300"></p>
-        <button id="logoutBtn"
-          class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition">
-          Logout
-        </button>
-      </div>
-    </div>
-  </header>
+<button class="navbtn text-left p-2 rounded">Dashboard</button>
+<button class="navbtn text-left p-2 rounded">Drivers</button>
+<button class="navbtn text-left p-2 rounded">Events</button>
+<button class="navbtn text-left p-2 rounded">Charts</button>
 
-  <!-- Main -->
-  <main class="max-w-7xl mx-auto px-6 py-10">
+<div class="mt-auto">
+<button id="logoutBtn"
+class="w-full bg-red-600 py-2 rounded-lg">
+Logout
+</button>
+</div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+</aside>
 
-      <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6">
-        <p class="text-sm text-zinc-400">Total Drivers</p>
-        <h2 id="driverCount" class="text-3xl font-bold mt-2">0</h2>
-      </div>
+<!-- MAIN -->
+<div class="flex-1 p-8 space-y-8 overflow-y-auto">
 
-      <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6">
-        <p class="text-sm text-zinc-400">Total Race Results</p>
-        <h2 id="resultCount" class="text-3xl font-bold mt-2">0</h2>
-      </div>
+<!-- TOP STATS -->
+<div class="grid md:grid-cols-3 gap-6">
 
-      <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6">
-        <p class="text-sm text-zinc-400">Reports Stored</p>
-        <h2 id="reportCount" class="text-3xl font-bold mt-2">0</h2>
-      </div>
+<div class="stat p-6 rounded-xl">
+<p class="text-zinc-400 text-sm">Total Drivers</p>
+<h2 id="driverCount" class="text-3xl font-bold mt-2">—</h2>
+</div>
 
-    </div>
+<div class="stat p-6 rounded-xl">
+<p class="text-zinc-400 text-sm">Total Points</p>
+<h2 id="pointsTotal" class="text-3xl font-bold mt-2">—</h2>
+</div>
 
-    <!-- Add Driver -->
-    <section class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6 mb-8">
-      <h3 class="text-xl font-bold mb-4">Add Driver</h3>
+<div class="stat p-6 rounded-xl">
+<p class="text-zinc-400 text-sm">Total Wins</p>
+<h2 id="winsTotal" class="text-3xl font-bold mt-2">—</h2>
+</div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input id="driverName" class="px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 outline-none focus:border-blue-500"
-          placeholder="Driver Name (Takina)">
-        <input id="driverTag" class="px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 outline-none focus:border-blue-500"
-          placeholder="Nickname / Tag (Duck)">
-        <input id="driverRole" class="px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 outline-none focus:border-blue-500"
-          placeholder="Role (Driver / Manager)">
-      </div>
+</div>
 
-      <button id="addDriverBtn"
-        class="mt-4 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-semibold">
-        Save Driver
-      </button>
+<!-- ADD DRIVER -->
+<section class="glass p-6 rounded-xl">
+<h2 class="text-lg font-bold mb-4">Add Driver</h2>
 
-      <p id="driverMsg" class="text-sm text-zinc-400 mt-3"></p>
-    </section>
+<div class="grid md:grid-cols-4 gap-3">
+<input id="name" placeholder="Name" class="p-2 bg-zinc-900 rounded">
+<input id="tag" placeholder="Tag" class="p-2 bg-zinc-900 rounded">
+<input id="role" placeholder="Role" class="p-2 bg-zinc-900 rounded">
+<input id="photo" placeholder="Photo URL" class="p-2 bg-zinc-900 rounded">
+</div>
 
-    <!-- Drivers Table -->
-    <section class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-bold">Drivers</h3>
-        <button id="refreshBtn"
-          class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition">
-          Refresh
-        </button>
-      </div>
+<textarea id="notes" placeholder="Notes"
+class="w-full mt-3 p-2 bg-zinc-900 rounded"></textarea>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="text-zinc-400 border-b border-zinc-800">
-            <tr>
-              <th class="text-left py-3">Name</th>
-              <th class="text-left py-3">Tag</th>
-              <th class="text-left py-3">Role</th>
-              <th class="text-right py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="driversTable"></tbody>
-        </table>
-      </div>
-    </section>
+<button id="addDriver"
+class="mt-3 bg-blue-600 px-5 py-2 rounded-lg hover:bg-blue-500">
+Save Driver
+</button>
+</section>
 
-  </main>
+<!-- DRIVERS -->
+<section class="glass p-6 rounded-xl">
+<h2 class="text-lg font-bold mb-4">Drivers</h2>
+<div id="drivers"></div>
+</section>
 
-  <script type="module" src="./dashboard.js"></script>
+<!-- RESULTS + EVENTS -->
+<div class="grid md:grid-cols-2 gap-8">
+
+<section class="glass p-6 rounded-xl">
+<h2 class="text-lg font-bold mb-4">Race Result</h2>
+
+<select id="driverSelect" class="p-2 bg-zinc-900 rounded w-full"></select>
+
+<input id="position" type="number"
+placeholder="Finish Position"
+class="p-2 bg-zinc-900 rounded w-full mt-2">
+
+<input id="points" type="number"
+placeholder="Points Earned"
+class="p-2 bg-zinc-900 rounded w-full mt-2">
+
+<button id="addResult"
+class="mt-3 bg-green-600 px-4 py-2 rounded-lg w-full">
+Save Result
+</button>
+</section>
+
+<section class="glass p-6 rounded-xl">
+<h2 class="text-lg font-bold mb-4">Events</h2>
+
+<input id="eventName" placeholder="Event"
+class="p-2 bg-zinc-900 rounded w-full">
+
+<input id="eventDate" type="date"
+class="p-2 bg-zinc-900 rounded w-full mt-2">
+
+<textarea id="eventNotes"
+class="p-2 bg-zinc-900 rounded w-full mt-2"
+placeholder="Notes"></textarea>
+
+<button id="addEvent"
+class="bg-purple-600 px-4 py-2 rounded-lg mt-3 w-full">
+Add Event
+</button>
+
+<div id="eventsList" class="mt-4"></div>
+</section>
+
+</div>
+
+<!-- CHARTS -->
+<section class="glass p-6 rounded-xl">
+<h2 class="text-lg font-bold mb-4">Performance Charts</h2>
+<canvas id="pointsChart"></canvas>
+<canvas id="winsChart" class="mt-10"></canvas>
+</section>
+
+</div>
+
+<script type="module" src="./dashboard.js"></script>
 </body>
 </html>
