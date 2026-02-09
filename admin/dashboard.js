@@ -127,3 +127,4 @@ data:{labels:names,datasets:[{label:"Wins",data:wins}]}
 
 loadDrivers();
 loadEvents();
+
