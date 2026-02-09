@@ -1,165 +1,129 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Peak Admin</title>
+import { auth, db } from "./firebase.js";
+import {
+collection, addDoc, getDocs, updateDoc,
+doc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+import {
+signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-<style>
-body{
-background:#050507 url("https://www.transparenttextures.com/patterns/carbon-fibre-v2.png");
+let driversCache = [];
+
+// LOGOUT
+document.getElementById("logoutBtn").onclick = () => {
+signOut(auth);
+location.href="./";
+};
+
+// ADD DRIVER
+document.getElementById("addDriver").onclick = async () => {
+await addDoc(collection(db,"drivers"),{
+name:name.value,
+tag:tag.value,
+role:role.value,
+photo:photo.value,
+notes:notes.value,
+stats:{races:0,wins:0,podiums:0,points:0}
+});
+loadDrivers();
+};
+
+// LOAD DRIVERS
+async function loadDrivers(){
+const snap = await getDocs(collection(db,"drivers"));
+drivers.innerHTML="";
+driverSelect.innerHTML="";
+driversCache=[];
+
+snap.forEach(d=>{
+const data=d.data();
+driversCache.push({id:d.id,...data});
+
+driverSelect.innerHTML+=
+`<option value="${d.id}">${data.name}</option>`;
+
+drivers.innerHTML+=`
+<div class="border-b border-zinc-700 py-3 flex justify-between items-center">
+<div class="flex gap-4 items-center">
+<img src="${data.photo}" class="w-12 h-12 rounded-full object-cover">
+<div>
+<div class="font-bold">${data.name}</div>
+<div class="text-sm text-zinc-400">${data.notes}</div>
+<div class="text-xs">Pts:${data.stats.points} Wins:${data.stats.wins}</div>
+</div>
+</div>
+
+<button onclick="deleteDriver('${d.id}')"
+class="bg-red-600 px-3 py-1 rounded">
+Delete
+</button>
+</div>`;
+});
+
+drawCharts();
+}
+window.deleteDriver=async id=>{
+await deleteDoc(doc(db,"drivers",id));
+loadDrivers();
+};
+
+// ADD RESULT
+document.getElementById("addResult").onclick = async ()=>{
+const id=driverSelect.value;
+const pos=parseInt(position.value);
+const pts=parseInt(points.value);
+
+const driver=driversCache.find(d=>d.id===id);
+let s=driver.stats;
+
+s.races++;
+s.points+=pts;
+if(pos===1) s.wins++;
+if(pos<=3) s.podiums++;
+
+await updateDoc(doc(db,"drivers",id),{stats:s});
+loadDrivers();
+};
+
+// EVENTS
+document.getElementById("addEvent").onclick=async()=>{
+await addDoc(collection(db,"events"),{
+name:eventName.value,
+date:eventDate.value,
+notes:eventNotes.value
+});
+loadEvents();
+};
+
+async function loadEvents(){
+const snap=await getDocs(collection(db,"events"));
+eventsList.innerHTML="";
+snap.forEach(e=>{
+const d=e.data();
+eventsList.innerHTML+=
+`<div class="border-b border-zinc-700 py-2">
+${d.date} — ${d.name}
+</div>`;
+});
 }
 
-/* Glass Panel */
-.glass{
-background:rgba(20,20,28,.55);
-backdrop-filter: blur(14px);
-border:1px solid rgba(120,120,255,.15);
-box-shadow:0 10px 35px rgba(0,0,0,.45);
+// CHARTS
+function drawCharts(){
+const names=driversCache.map(d=>d.name);
+const pts=driversCache.map(d=>d.stats.points);
+const wins=driversCache.map(d=>d.stats.wins);
+
+new Chart(pointsChart,{
+type:"bar",
+data:{labels:names,datasets:[{label:"Points",data:pts}]}
+});
+
+new Chart(winsChart,{
+type:"bar",
+data:{labels:names,datasets:[{label:"Wins",data:wins}]}
+});
 }
 
-/* Neon Card */
-.stat{
-background:linear-gradient(145deg,#11121a,#0a0a10);
-border:1px solid rgba(70,130,255,.25);
-box-shadow:0 0 20px rgba(50,150,255,.25);
-}
-
-/* Sidebar Glow */
-.navbtn:hover{
-background:rgba(80,120,255,.2);
-box-shadow:0 0 12px rgba(80,120,255,.4);
-}
-</style>
-</head>
-
-<body class="text-white min-h-screen flex">
-
-<!-- SIDEBAR -->
-<aside class="w-64 glass flex flex-col p-6 space-y-6">
-
-<h1 class="text-2xl font-bold text-blue-400">PEAK</h1>
-
-<button class="navbtn text-left p-2 rounded">Dashboard</button>
-<button class="navbtn text-left p-2 rounded">Drivers</button>
-<button class="navbtn text-left p-2 rounded">Events</button>
-<button class="navbtn text-left p-2 rounded">Charts</button>
-
-<div class="mt-auto">
-<button id="logoutBtn"
-class="w-full bg-red-600 py-2 rounded-lg">
-Logout
-</button>
-</div>
-
-</aside>
-
-<!-- MAIN -->
-<div class="flex-1 p-8 space-y-8 overflow-y-auto">
-
-<!-- TOP STATS -->
-<div class="grid md:grid-cols-3 gap-6">
-
-<div class="stat p-6 rounded-xl">
-<p class="text-zinc-400 text-sm">Total Drivers</p>
-<h2 id="driverCount" class="text-3xl font-bold mt-2">—</h2>
-</div>
-
-<div class="stat p-6 rounded-xl">
-<p class="text-zinc-400 text-sm">Total Points</p>
-<h2 id="pointsTotal" class="text-3xl font-bold mt-2">—</h2>
-</div>
-
-<div class="stat p-6 rounded-xl">
-<p class="text-zinc-400 text-sm">Total Wins</p>
-<h2 id="winsTotal" class="text-3xl font-bold mt-2">—</h2>
-</div>
-
-</div>
-
-<!-- ADD DRIVER -->
-<section class="glass p-6 rounded-xl">
-<h2 class="text-lg font-bold mb-4">Add Driver</h2>
-
-<div class="grid md:grid-cols-4 gap-3">
-<input id="name" placeholder="Name" class="p-2 bg-zinc-900 rounded">
-<input id="tag" placeholder="Tag" class="p-2 bg-zinc-900 rounded">
-<input id="role" placeholder="Role" class="p-2 bg-zinc-900 rounded">
-<input id="photo" placeholder="Photo URL" class="p-2 bg-zinc-900 rounded">
-</div>
-
-<textarea id="notes" placeholder="Notes"
-class="w-full mt-3 p-2 bg-zinc-900 rounded"></textarea>
-
-<button id="addDriver"
-class="mt-3 bg-blue-600 px-5 py-2 rounded-lg hover:bg-blue-500">
-Save Driver
-</button>
-</section>
-
-<!-- DRIVERS -->
-<section class="glass p-6 rounded-xl">
-<h2 class="text-lg font-bold mb-4">Drivers</h2>
-<div id="drivers"></div>
-</section>
-
-<!-- RESULTS + EVENTS -->
-<div class="grid md:grid-cols-2 gap-8">
-
-<section class="glass p-6 rounded-xl">
-<h2 class="text-lg font-bold mb-4">Race Result</h2>
-
-<select id="driverSelect" class="p-2 bg-zinc-900 rounded w-full"></select>
-
-<input id="position" type="number"
-placeholder="Finish Position"
-class="p-2 bg-zinc-900 rounded w-full mt-2">
-
-<input id="points" type="number"
-placeholder="Points Earned"
-class="p-2 bg-zinc-900 rounded w-full mt-2">
-
-<button id="addResult"
-class="mt-3 bg-green-600 px-4 py-2 rounded-lg w-full">
-Save Result
-</button>
-</section>
-
-<section class="glass p-6 rounded-xl">
-<h2 class="text-lg font-bold mb-4">Events</h2>
-
-<input id="eventName" placeholder="Event"
-class="p-2 bg-zinc-900 rounded w-full">
-
-<input id="eventDate" type="date"
-class="p-2 bg-zinc-900 rounded w-full mt-2">
-
-<textarea id="eventNotes"
-class="p-2 bg-zinc-900 rounded w-full mt-2"
-placeholder="Notes"></textarea>
-
-<button id="addEvent"
-class="bg-purple-600 px-4 py-2 rounded-lg mt-3 w-full">
-Add Event
-</button>
-
-<div id="eventsList" class="mt-4"></div>
-</section>
-
-</div>
-
-<!-- CHARTS -->
-<section class="glass p-6 rounded-xl">
-<h2 class="text-lg font-bold mb-4">Performance Charts</h2>
-<canvas id="pointsChart"></canvas>
-<canvas id="winsChart" class="mt-10"></canvas>
-</section>
-
-</div>
-
-<script type="module" src="./dashboard.js"></script>
-</body>
-</html>
+loadDrivers();
+loadEvents();
